@@ -206,6 +206,7 @@ class HTML_Requester (object) :
         while 'MultiChallenge' in self.purl :
             d = self.parse_pw_response ()
             otp = getpass ('One-time Password: ')
+            d ['pin'] = self.args.password
             d ['password'] = enc.encrypt (otp)
             self.debug ("nextfile: %s" % self.nextfile)
             self.debug ("purl: %s" % self.purl)
