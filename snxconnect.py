@@ -529,6 +529,7 @@ def main () :
         ( '-SC', '--skip-cert'
         , help    = 'Skip certificate verification'
         , action='store_true'
+        , default = cfg.get ('skip_cert', False)
         )
 
     args = cmd.parse_args ()
