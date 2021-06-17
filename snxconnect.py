@@ -249,7 +249,7 @@ class HTML_Requester (object) :
                 otp = getpass ('One-time Password: ')
                 otp =  rsa.pkcs1.encrypt(self.args.password, rsa.PublicKey(self.modulus, self.exponent))
                 otp = ''.join ('%02x' % b_ord (c) for c in reversed (otp))
-            d ['pin'] = self.args.password
+                d ['pin'] = self.args.password
                 d ['password'] = otp
                 self.debug ("nextfile: %s" % self.nextfile)
                 self.debug ("purl: %s" % self.purl)
