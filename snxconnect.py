@@ -7,9 +7,9 @@ import sys
 import socket
 import ssl
 import rsa
+import ssl
 try :
     from urllib2 import build_opener, HTTPCookieProcessor, Request, HTTPSHandler
-    import ssl
     from urllib  import urlencode
     from httplib import IncompleteRead
 except ImportError :
@@ -132,7 +132,17 @@ class HTML_Requester (object) :
             f.write (answer)
             f.close ()
         print ("SNX connected, to leave VPN open, leave this running!")
-        answer = sock.recv (4096) # should block until snx dies
+        try:
+            answer = sock.recv (4096) # should block until snx dies
+        except KeyboardInterrupt:
+            sys.stdout.write ('\b\b\r')
+            sys.stdout.flush()
+            sys.stdout.write ("Shutting down ...\n")
+            sys.stdout.flush()
+            try:
+                sys.exit(0)
+            except SystemExit:
+                os._exit(0)
     # end def call_snx
 
     def debug (self, s) :
@@ -186,6 +196,7 @@ class HTML_Requester (object) :
                 self.jar.clear ()
                 self.next_file (self.purl)
         self.debug (self.nextfile)
+        print ('Visiting login page ...')
         self.open ()
         self.debug (self.purl)
         # Get the RSA parameters from the javascript in the received html
@@ -197,6 +208,7 @@ class HTML_Requester (object) :
         else :
             print ('No RSA javascript file found, cannot login')
             return
+        print ('Fetching RSA javascript file ...')
         self.open (do_soup = False)
         self.parse_rsa_params ()
         if not self.modulus :
@@ -210,7 +222,7 @@ class HTML_Requester (object) :
         self.debug (self.nextfile)
 
         self.debug(self.purl)
-        password =  rsa.pkcs1.encrypt(self.args.password, rsa.PublicKey(self.modulus, self.exponent))
+        password =  rsa.pkcs1.encrypt(self.args.password.encode('UTF-8'), rsa.PublicKey(self.modulus, self.exponent))
         password = ''.join ('%02x' % b_ord (c) for c in reversed (password))
         d = dict \
             ( password      = password 
@@ -221,9 +233,15 @@ class HTML_Requester (object) :
             , HeightData    = self.args.height_data
             )
         self.debug (urlencode(d))
+        print ("Sending login information ...")
         self.open (data = urlencode (d))
         self.debug (self.purl)
         self.debug (self.info)
+
+        errorMessage = self.soup.select_one(".errorMessage")
+        if errorMessage :
+            print ("Error: %s" % errorMessage.string)
+            return
 
         if self.args.multi_challenge :
             while 'MultiChallenge' in self.purl :
@@ -248,6 +266,7 @@ class HTML_Requester (object) :
             if self.args.save_cookies :
                 self.jar.save (self.args.cookiefile, ignore_discard = True)
             self.debug ("purl: %s" % self.purl)
+            print ("Fetching extender information ...")
             self.open  (self.args.extender)
             self.debug (self.purl)
             self.debug (self.info)
@@ -305,12 +324,13 @@ class HTML_Requester (object) :
             program via a socket.
         """
         for script in self.soup.find_all ('script') :
-            if '/* Extender.user_name' in script.text :
+            text = script.text or script.string or ""
+            if '/* Extender.user_name' in text :
                 break
         else :
             print ("Error retrieving extender variables")
             return
-        for line in script.text.split ('\n') :
+        for line in text.split ('\n') :
             if '/* Extender.user_name' in line :
                 break
         stmts = line.split (';')
