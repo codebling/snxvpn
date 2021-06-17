@@ -524,7 +524,7 @@ def main () :
     cmd.add_argument \
         ( '-r', '--login-try-limit'
         , help    = 'Login retry limit, default="%(default)s"'
-        , default = cfg.get ('login_try_limit', 3)
+        , default = cfg.get ('login_try_limit', 1)
         )
 
     args = cmd.parse_args ()
