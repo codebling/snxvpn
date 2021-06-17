@@ -522,9 +522,9 @@ def main () :
         , default = cfg.get ('skip_cert', False)
         )
     cmd.add_argument \
-        ( '-r', '--login-try-limit'
+        ( '-r', '--login-retry-limit'
         , help    = 'Login retry limit, default="%(default)s"'
-        , default = cfg.get ('login_try_limit', 1)
+        , default = cfg.get ('login_retry_limit', 1)
         )
 
     args = cmd.parse_args ()
@@ -552,7 +552,7 @@ def main () :
     while True:
         login_try += 1
         result = rq.login ()
-        if result or login_try >= args.login_try_limit :
+        if result or login_try >= args.login_retry_limit :
             break
     if result :
         rq.call_snx ()
