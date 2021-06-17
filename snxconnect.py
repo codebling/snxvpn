@@ -224,7 +224,7 @@ class HTML_Requester (object) :
         self.open (data = urlencode (d))
         self.debug (self.purl)
         self.debug (self.info)
-        
+
         if self.args.multi_challenge :
             while 'MultiChallenge' in self.purl :
                 d = self.parse_pw_response ()
@@ -499,6 +499,7 @@ def main () :
         ( '-SC', '--skip-cert'
         , help    = 'Skip certificate verification'
         , action='store_true'
+        , default = cfg.get ('skip_cert', False)
         )
     cmd.add_argument \
         ( '-r', '--login-try-limit'
