@@ -172,7 +172,7 @@ class HTML_Requester (object) :
             self.open ()
             self.debug (self.purl)
             if self.purl.endswith ('Portal/Main') :
-                self.open ('sslvpn/SNX/extender')
+                self.open (self.args.extender)
                 self.parse_extender ()
                 self.generate_snx_info ()
                 return True
@@ -237,7 +237,7 @@ class HTML_Requester (object) :
             if self.args.save_cookies :
                 self.jar.save (self.args.cookiefile, ignore_discard = True)
             self.debug ("purl: %s" % self.purl)
-            self.open  ('sslvpn/SNX/extender')
+            self.open  (self.args.extender)
             self.debug (self.purl)
             self.debug (self.info)
             self.parse_extender ()
@@ -465,6 +465,11 @@ def main () :
         ( '-F', '--file'
         , help    = 'File part of URL default="%(default)s"'
         , default = cfg.get ('file', 'sslvpn/Login/Login')
+        )
+    cmd.add_argument \
+        ( '-E', '--extender'
+        , help    = 'File part of URL default="%(default)s"'
+        , default = cfg.get ('extender', 'sslvpn/SNX/extender')
         )
     cmd.add_argument \
         ( '-H', '--host'
